@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /home
 ├── intranet-backend/          # Node.js Backend
 │   ├── package.json          # Dependencies (express, cors, dotenv)
@@ -19,3 +20,6 @@
     ├── tailwind.config.js    # ✅ Tailwind config (DONE!)
     ├── postcss.config.js     # ✅ PostCSS config (DONE!)
     └── package.json          # ✅ All dependencies installed!
+=======
+# Gogmi-Intranet
+>>>>>>> 3b67f2ac70cdfbffdc9904f11658582efc28e3f7
