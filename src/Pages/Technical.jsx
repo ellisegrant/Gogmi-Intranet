@@ -1,4 +1,19 @@
+import { useNavigate } from 'react-router-dom';
+import { FlaskConical } from 'lucide-react';
+
 export default function Technical() {
+  const navigate = useNavigate();
+
+  const subModules = [
+    {
+      id: 'research-work',
+      name: 'Research Work',
+      icon: FlaskConical,
+      description: 'Research and development activities',
+      path: '/technical/research-work'
+    }
+  ];
+
   return (
     <div className="p-8">
       <div className="mb-8">
@@ -11,23 +26,30 @@ export default function Technical() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* Placeholder sub-modules */}
-        <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-violet-500 hover:shadow-lg transition-shadow cursor-pointer">
-          <h3 className="text-xl font-bold text-gray-800 mb-2">Research</h3>
-          <p className="text-gray-600 text-sm">Research work</p>
-        </div>
-        {/* <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-violet-500 hover:shadow-lg transition-shadow cursor-pointer">
-          <h3 className="text-xl font-bold text-gray-800 mb-2">Maintenance</h3>
-          <p className="text-gray-600 text-sm">System maintenance and updates</p>
-        </div> */}
-        {/* <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-violet-500 hover:shadow-lg transition-shadow cursor-pointer">
-          <h3 className="text-xl font-bold text-gray-800 mb-2">Systems</h3>
-          <p className="text-gray-600 text-sm">System administration</p>
-        </div> */}
-        {/* <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-violet-500 hover:shadow-lg transition-shadow cursor-pointer">
-          <h3 className="text-xl font-bold text-gray-800 mb-2">IT Support</h3>
-          <p className="text-gray-600 text-sm">Technical support and helpdesk</p>
-        </div> */}
+        {subModules.map((module) => {
+          const Icon = module.icon;
+          return (
+            <button
+              key={module.id}
+              onClick={() => navigate(module.path)}
+              className="bg-white rounded-lg shadow-md p-6 border-l-4 border-violet-500 hover:shadow-xl hover:border-violet-600 transition-all duration-300 text-left group"
+            >
+              <div className="flex items-start space-x-4">
+                <div className="bg-violet-100 p-3 rounded-lg group-hover:bg-violet-200 transition-colors">
+                  <Icon className="w-6 h-6 text-violet-600" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-gray-800 mb-2 group-hover:text-violet-600 transition-colors">
+                    {module.name}
+                  </h3>
+                  <p className="text-gray-600 text-sm">
+                    {module.description}
+                  </p>
+                </div>
+              </div>
+            </button>
+          );
+        })}
       </div>
     </div>
   );

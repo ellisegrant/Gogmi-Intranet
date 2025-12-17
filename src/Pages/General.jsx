@@ -46,7 +46,7 @@ export default function General() {
     <div className="p-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2" style={{ color: '#132552' }}>
-          General Department
+          General 
         </h1>
         <p className="text-gray-600">
           General operations and management

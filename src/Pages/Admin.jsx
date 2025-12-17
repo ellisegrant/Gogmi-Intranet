@@ -1,4 +1,47 @@
+import { useNavigate } from 'react-router-dom';
+import { Wallet, Package, PieChart, ShoppingCart, Users } from 'lucide-react';
+
 export default function Admin() {
+  const navigate = useNavigate();
+
+  const subModules = [
+    {
+      id: 'payroll',
+      name: 'Payroll',
+      icon: Wallet,
+      description: 'Salary and compensation management',
+      path: '/admin-finance/payroll'
+    },
+    {
+      id: 'assets',
+      name: 'Assets',
+      icon: Package,
+      description: 'Company assets and inventory',
+      path: '/admin-finance/assets'
+    },
+    {
+      id: 'budgets',
+      name: 'Budgets',
+      icon: PieChart,
+      description: 'Budget planning and tracking',
+      path: '/admin-finance/budgets'
+    },
+    {
+      id: 'procurement',
+      name: 'Procurement',
+      icon: ShoppingCart,
+      description: 'Purchasing and procurement',
+      path: '/admin-finance/procurement'
+    },
+    {
+      id: 'hr',
+      name: 'HR',
+      icon: Users,
+      description: 'Human resources management',
+      path: '/admin-finance/hr'
+    }
+  ];
+
   return (
     <div className="p-8">
       <div className="mb-8">
@@ -11,27 +54,30 @@ export default function Admin() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* Placeholder sub-modules */}
-        <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-emerald-500 hover:shadow-lg transition-shadow cursor-pointer">
-          <h3 className="text-xl font-bold text-gray-800 mb-2">Payroll</h3>
-          <p className="text-gray-600 text-sm">Salary and compensation management</p>
-        </div>
-        <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-emerald-500 hover:shadow-lg transition-shadow cursor-pointer">
-          <h3 className="text-xl font-bold text-gray-800 mb-2">Assets</h3>
-          <p className="text-gray-600 text-sm">Company assets and inventory</p>
-        </div>
-        <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-emerald-500 hover:shadow-lg transition-shadow cursor-pointer">
-          <h3 className="text-xl font-bold text-gray-800 mb-2">Budgets</h3>
-          <p className="text-gray-600 text-sm">Budget planning and tracking</p>
-        </div>
-        <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-emerald-500 hover:shadow-lg transition-shadow cursor-pointer">
-          <h3 className="text-xl font-bold text-gray-800 mb-2">Procurement</h3>
-          <p className="text-gray-600 text-sm">Purchasing and procurement</p>
-        </div>
-        <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-emerald-500 hover:shadow-lg transition-shadow cursor-pointer">
-          <h3 className="text-xl font-bold text-gray-800 mb-2">HR</h3>
-          <p className="text-gray-600 text-sm">Human resources management</p>
-        </div>
+        {subModules.map((module) => {
+          const Icon = module.icon;
+          return (
+            <button
+              key={module.id}
+              onClick={() => navigate(module.path)}
+              className="bg-white rounded-lg shadow-md p-6 border-l-4 border-emerald-500 hover:shadow-xl hover:border-emerald-600 transition-all duration-300 text-left group"
+            >
+              <div className="flex items-start space-x-4">
+                <div className="bg-emerald-100 p-3 rounded-lg group-hover:bg-emerald-200 transition-colors">
+                  <Icon className="w-6 h-6 text-emerald-600" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-gray-800 mb-2 group-hover:text-emerald-600 transition-colors">
+                    {module.name}
+                  </h3>
+                  <p className="text-gray-600 text-sm">
+                    {module.description}
+                  </p>
+                </div>
+              </div>
+            </button>
+          );
+        })}
       </div>
     </div>
   );
