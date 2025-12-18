@@ -2,7 +2,7 @@ import { LayoutGrid, DollarSign, Wrench, Building2, Briefcase } from 'lucide-rea
 import { useNavigate } from 'react-router-dom';
 
 export default function Dashboard() {
-  const navigate = useNavigate();
+  const navigate = useNavigate(); 
 
   // 5 Main Departments - Each will have sub-modules/tasks underneath
   const departments = [
