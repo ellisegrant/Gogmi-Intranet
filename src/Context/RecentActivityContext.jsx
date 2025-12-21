@@ -15,7 +15,6 @@ export const RecentActivityProvider = ({ children }) => {
   const [recentPages, setRecentPages] = useState([]);
   const location = useLocation();
 
-  // Page name mapping
   const pageNames = {
     '/': 'Dashboard',
     '/profile': 'Profile',
@@ -40,9 +39,7 @@ export const RecentActivityProvider = ({ children }) => {
     '/directorate/executive-management': 'Executive Management'
   };
 
-  // Track page visits
   useEffect(() => {
-    // Don't track login page
     if (location.pathname === '/login') return;
 
     const pageName = pageNames[location.pathname] || location.pathname;
@@ -59,15 +56,12 @@ export const RecentActivityProvider = ({ children }) => {
     };
 
     setRecentPages(prev => {
-      // Don't add if it's the same as the last page
       if (prev[0]?.path === location.pathname) {
         return prev;
       }
 
-      // Add new page and limit to 10 most recent
       const updated = [newPage, ...prev].slice(0, 10);
       
-      // Save to localStorage
       try {
         localStorage.setItem('recentPages', JSON.stringify(updated));
       } catch (e) {
@@ -78,7 +72,6 @@ export const RecentActivityProvider = ({ children }) => {
     });
   }, [location.pathname]);
 
-  // Load from localStorage on mount
   useEffect(() => {
     try {
       const saved = localStorage.getItem('recentPages');

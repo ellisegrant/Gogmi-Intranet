@@ -404,7 +404,7 @@ export default function Assets() {
                   >
                     <option value="">Select Location</option>
                     <option value="Storage Room">Storage Room</option>
-                    <option value="Office">Office</option>
+                    <option value="Office">Main Office</option>
                     <option value="Conference Room">Conference Room</option>
                     <option value="Reception">Reception</option>
                   </select>
