@@ -8,6 +8,7 @@ import Admin from './Pages/Admin'
 import Technical from './Pages/Technical'
 import Corporate from './Pages/Corporate'
 import Directorate from './Pages/Directorate'
+import PayslipView from './Pages/PayslipView'
 
 // General sub-modules
 import Policies from './Pages/General/Policies'
@@ -50,9 +51,9 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* ============================================
-            PUBLIC ROUTES - No Login Required
-            ============================================ */}
+    
+            {/* PUBLIC ROUTES - No Login Required */}
+          
         <Route path="/login" element={<Login />} />
         <Route path="/request-access" element={<RequestAccess />} />
         
@@ -214,6 +215,13 @@ function App() {
             </Layout>
           </ProtectedRoute>
         } />
+
+
+        <Route path="/payslip/:id" element={
+          <ProtectedRoute>
+          <PayslipView />
+           </ProtectedRoute>
+         } />
         
         {/* Directorate Sub-Module Routes */}
         <Route path="/directorate/executive-management" element={
