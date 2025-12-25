@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { FileText, Users, Package, Database, UserSquare2 } from 'lucide-react';
+import DepartmentProtection from '../Components/DepartmentProtection';
 
 export default function General() {
   const navigate = useNavigate();
@@ -43,42 +44,44 @@ export default function General() {
   ];
 
   return (
-    <div className="p-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2" style={{ color: '#132552' }}>
-          General 
-        </h1>
-        <p className="text-gray-600">
-          General operations and management
-        </p>
-      </div>
+    <DepartmentProtection departmentId="general">
+      <div className="p-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold mb-2" style={{ color: '#132552' }}>
+            General 
+          </h1>
+          <p className="text-gray-600">
+            General operations and management
+          </p>
+        </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {subModules.map((module) => {
-          const Icon = module.icon;
-          return (
-            <button
-              key={module.id}
-              onClick={() => navigate(module.path)}
-              className="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500 hover:shadow-xl hover:border-blue-600 transition-all duration-300 text-left group"
-            >
-              <div className="flex items-start space-x-4">
-                <div className="bg-blue-100 p-3 rounded-lg group-hover:bg-blue-200 transition-colors">
-                  <Icon className="w-6 h-6 text-blue-600" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {subModules.map((module) => {
+            const Icon = module.icon;
+            return (
+              <button
+                key={module.id}
+                onClick={() => navigate(module.path)}
+                className="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500 hover:shadow-xl hover:border-blue-600 transition-all duration-300 text-left group"
+              >
+                <div className="flex items-start space-x-4">
+                  <div className="bg-blue-100 p-3 rounded-lg group-hover:bg-blue-200 transition-colors">
+                    <Icon className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-xl font-bold text-gray-800 mb-2 group-hover:text-blue-600 transition-colors">
+                      {module.name}
+                    </h3>
+                    <p className="text-gray-600 text-sm">
+                      {module.description}
+                    </p>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <h3 className="text-xl font-bold text-gray-800 mb-2 group-hover:text-blue-600 transition-colors">
-                    {module.name}
-                  </h3>
-                  <p className="text-gray-600 text-sm">
-                    {module.description}
-                  </p>
-                </div>
-              </div>
-            </button>
-          );
-        })}
+              </button>
+            );
+          })}
+        </div>
       </div>
-    </div>
+    </DepartmentProtection>
   );
 }

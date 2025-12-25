@@ -2,45 +2,99 @@ import { createContext, useContext, useState, useEffect } from 'react';
 
 const AuthContext = createContext(null);
 
-export const useAuth = () => {
+export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {
     throw new Error('useAuth must be used within AuthProvider');
   }
   return context;
-};
+}
 
-export const AuthProvider = ({ children }) => {
+export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const savedUser = localStorage.getItem('user');
     if (savedUser) {
-      setUser(JSON.parse(savedUser));
+      try {
+        setUser(JSON.parse(savedUser));
+      } catch (e) {
+        localStorage.removeItem('user');
+      }
     }
     setLoading(false);
   }, []);
 
-  const login = (email, password) => {
+  const login = (employeeId, username, password) => {
     const demoUsers = [
-      { id: 1, name: 'Admin User', email: 'admin@intranet.com', password: 'admin123', role: 'admin', departments: ['admin-finance', 'technical', 'corporate-affairs', 'directorate'] },
-      { id: 2, name: 'Finance User', email: 'finance@intranet.com', password: 'finance123', role: 'user', departments: ['admin-finance'] },
-      { id: 3, name: 'Technical User', email: 'technical@intranet.com', password: 'technical123', role: 'user', departments: ['technical'] },
-      { id: 4, name: 'Corporate User', email: 'corporate@intranet.com', password: 'corporate123', role: 'user', departments: ['corporate-affairs'] },
-      { id: 5, name: 'Directorate User', email: 'directorate@intranet.com', password: 'directorate123', role: 'user', departments: ['directorate'] },
-      { id: 6, name: 'Multi Dept User', email: 'multi@intranet.com', password: 'multi123', role: 'user', departments: ['admin-finance', 'technical'] }
+      { 
+        id: 1, 
+        employeeId: 'EMP-AFN-001',
+        username: 'john_doe',
+        name: 'John Doe', 
+        password: 'password123', 
+        department: 'admin-finance',
+        departmentName: 'Admin & Finance',
+        position: 'Finance Manager',
+        supervisor: 'Jonas Aryeh',
+        workAnniversary: 'Feb 1st',
+        timeInCompany: '2 years 3 months',
+      },
+      { 
+        id: 2, 
+        employeeId: 'EMP-TEC-001',
+        username: 'sarah_tech',
+        name: 'Sarah Johnson', 
+        password: 'password123', 
+        department: 'technical',
+        departmentName: 'Technical',
+        position: 'Research Manager',
+        supervisor: 'Caleb Harrison',
+        workAnniversary: 'Mar 15th',
+        timeInCompany: '1 year 8 months',
+      },
+      { 
+        id: 3, 
+        employeeId: 'EMP-CRP-001',
+        username: 'mike_corp',
+        name: 'Mike Williams', 
+        password: 'password123', 
+        department: 'corporate-affairs',
+        departmentName: 'Corporate Affairs',
+        position: 'Communications Specialist',
+        supervisor: 'Jonas Aryeh',
+        workAnniversary: 'Jan 10th',
+        timeInCompany: '3 years 2 months',
+      },
+      { 
+        id: 4, 
+        employeeId: 'EMP-DIR-001',
+        username: 'emma_dir',
+        name: 'Emma Davis', 
+        password: 'password123', 
+        department: 'directorate',
+        departmentName: 'Directorate',
+        position: 'Executive Assistant',
+        supervisor: 'CEO',
+        workAnniversary: 'Sep 5th',
+        timeInCompany: '4 years 1 month',
+      }
     ];
 
-    const foundUser = demoUsers.find(u => u.email === email && u.password === password);
+    const foundUser = demoUsers.find(u => 
+      u.employeeId === employeeId && 
+      u.username === username && 
+      u.password === password
+    );
     
     if (foundUser) {
       const { password, ...userWithoutPassword } = foundUser;
       setUser(userWithoutPassword);
       localStorage.setItem('user', JSON.stringify(userWithoutPassword));
-      return true;
+      return { success: true };
     }
-    return false;
+    return { success: false, error: 'Invalid Employee ID, Username or Password' };
   };
 
   const logout = () => {
@@ -50,13 +104,10 @@ export const AuthProvider = ({ children }) => {
 
   const hasAccessToDepartment = (departmentId) => {
     if (!user) return false;
+    // General is accessible to everyone
     if (departmentId === 'general') return true;
-    if (user.role === 'admin') return true;
-    return user.departments && user.departments.includes(departmentId);
-  };
-
-  const isAdmin = () => {
-    return user && user.role === 'admin';
+    // Users can access their own department
+    return user.department === departmentId;
   };
 
   const value = {
@@ -64,13 +115,16 @@ export const AuthProvider = ({ children }) => {
     login,
     logout,
     hasAccessToDepartment,
-    isAdmin,
     loading
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
-};
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-xl">Loading...</div>
+      </div>
+    );
+  }
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}

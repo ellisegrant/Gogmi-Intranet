@@ -1,7 +1,9 @@
 import { useState } from 'react';
-import { Plus, Eye, Trash2, Archive, Search, X, Upload, Calendar } from 'lucide-react';
+import { Plus, Eye, Trash2, Archive, Search, X, Upload, Calendar, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export default function Assets() {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('current');
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
@@ -187,24 +189,33 @@ export default function Assets() {
   };
 
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
+    <div className="min-h-screen bg-gray-100">
       {/* Header */}
-      <div className="p-8 pb-6">
+      <div className="p-8 pb-6 bg-gradient-to-r from-gray-700 to-gray-800">
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
-              <Archive className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-white">Assets Register</h1>
-              <p className="text-white/80 text-sm">
-                Track, archive and unarchive company assets with image support and per-location IDs
-              </p>
+          <div className="flex items-center space-x-4">
+            <button
+              onClick={() => navigate('/general')}
+              className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+              title="Back to General"
+            >
+              <ArrowLeft className="w-6 h-6 text-white" />
+            </button>
+            <div className="flex items-center space-x-3">
+              <div className="w-12 h-12 bg-white/10 rounded-lg flex items-center justify-center border border-white/20">
+                <Archive className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-white">Assets Register</h1>
+                <p className="text-white/80 text-sm">
+                  Track, archive and unarchive company assets with image support and per-location IDs
+                </p>
+              </div>
             </div>
           </div>
           <button
             onClick={() => setShowUploadModal(true)}
-            className="flex items-center space-x-2 px-6 py-3 bg-white text-purple-600 rounded-lg hover:bg-gray-50 transition-colors font-medium shadow-lg"
+            className="flex items-center space-x-2 px-6 py-3 bg-white text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium shadow-lg"
           >
             <Upload className="w-5 h-5" />
             <span>Upload Asset</span>
@@ -223,7 +234,7 @@ export default function Assets() {
                   onClick={() => setActiveTab('current')}
                   className={`px-6 py-2 rounded-lg font-medium transition-colors ${
                     activeTab === 'current'
-                      ? 'bg-purple-100 text-purple-700'
+                      ? 'bg-gray-700 text-white'
                       : 'text-gray-600 hover:bg-gray-100'
                   }`}
                 >
@@ -233,7 +244,7 @@ export default function Assets() {
                   onClick={() => setActiveTab('archived')}
                   className={`px-6 py-2 rounded-lg font-medium transition-colors ${
                     activeTab === 'archived'
-                      ? 'bg-purple-100 text-purple-700'
+                      ? 'bg-gray-700 text-white'
                       : 'text-gray-600 hover:bg-gray-100'
                   }`}
                 >
@@ -404,7 +415,7 @@ export default function Assets() {
                   >
                     <option value="">Select Location</option>
                     <option value="Storage Room">Storage Room</option>
-                    <option value="Office">Main Office</option>
+                    <option value="Office">Office</option>
                     <option value="Conference Room">Conference Room</option>
                     <option value="Reception">Reception</option>
                   </select>

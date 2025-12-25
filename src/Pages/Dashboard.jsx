@@ -1,22 +1,28 @@
 import { useState } from 'react';
-import { LayoutGrid, DollarSign, Wrench, Building2, Briefcase, MapPin, User, Calendar, Clock, Edit2, Search, Bell, Gift, Award, FileText, Target, Plane, TrendingUp, Users, ChevronRight, Megaphone } from 'lucide-react';
+import { LayoutGrid, DollarSign, Wrench, Building2, Briefcase, MapPin, User, Calendar, Clock, Edit2, Search, Bell, Gift, Award, TrendingUp, Users, ChevronRight, Megaphone, Lock, X, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  // Temporarily disable auth
-  const user = { name: 'Enoch Nikoi', departments: ['general'] };
-  const hasAccessToDepartment = () => true;
   const [searchQuery, setSearchQuery] = useState('');
+  
+  // Department Access Modal States
+  const [showDepartmentModal, setShowDepartmentModal] = useState(false);
+  const [selectedDepartment, setSelectedDepartment] = useState(null);
+  const [departmentCode, setDepartmentCode] = useState('');
+  const [departmentError, setDepartmentError] = useState('');
+  const [verifying, setVerifying] = useState(false);
 
-  // 5 Main Departments
+  // Get user data from localStorage
+  const userData = JSON.parse(localStorage.getItem('user') || '{}');
+
   const departments = [
     {
       id: 'general',
       name: 'General',
       icon: LayoutGrid,
       path: '/general',
-      description: 'General operations and management (includes IMSWG)',
+      description: 'General operations and management',
       bgColor: 'bg-slate-700',
       hoverBgColor: 'hover:bg-slate-800',
       iconBg: 'bg-slate-100',
@@ -25,7 +31,7 @@ export default function Dashboard() {
     },
     {
       id: 'admin-finance',
-      name: 'Admin and Finance',
+      name: 'Admin & Finance',
       icon: DollarSign,
       path: '/admin-finance',
       description: 'Administrative and financial operations',
@@ -73,7 +79,6 @@ export default function Dashboard() {
     }
   ];
 
-  // Demo data
   const announcements = [
     {
       id: 1,
@@ -85,16 +90,16 @@ export default function Dashboard() {
   ];
 
   const employees = [
-    { id: 1, name: 'Chukwunalu Mobi', role: 'Agile Delivery Manager', avatar: 'CM', color: 'bg-pink-500' },
-    { id: 2, name: 'Prince Amarh', role: 'Admin Manager', avatar: 'PA', color: 'bg-pink-500' },
-    { id: 3, name: 'Apolline Perez', role: 'HR Consultant', avatar: 'AP', color: 'bg-pink-500' },
-    { id: 4, name: 'Yemi Adegoke', role: 'CTO', avatar: 'YA', color: 'bg-pink-500' }
+    { id: 1, name: 'Jonas Aryeh', role: 'Head Of Corporate Affairs', avatar: 'JA', color: 'bg-pink-500' },
+    { id: 2, name: 'Caleb Harrisson', role: 'Research Manager', avatar: 'CH', color: 'bg-pink-500' },
+    { id: 3, name: 'Rhodalyn Owusu', role: 'HR Consultant', avatar: 'RO', color: 'bg-pink-500' },
+    { id: 4, name: 'Julliet O.A', role: 'CTO', avatar: 'JO', color: 'bg-pink-500' }
   ];
 
   const birthdays = [
-    { name: 'Victory Ukpong', date: 'Dec 7th', avatar: 'VU', color: 'bg-pink-500' },
-    { name: 'Emmanuel Arthur', date: 'Dec 12th', avatar: 'EA', color: 'bg-pink-500' },
-    { name: 'Israel Okpamen', date: 'Dec 24th', avatar: 'IO', color: 'bg-pink-500' }
+    { name: 'Enoch Nii', date: 'Dec 7th', avatar: 'EN', color: 'bg-pink-500' },
+    { name: 'Paa Boamah', date: 'Dec 12th', avatar: 'PB', color: 'bg-pink-500' },
+    { name: 'Joseph Apaw', date: 'Dec 24th', avatar: 'JA', color: 'bg-pink-500' }
   ];
 
   const anniversaries = [
@@ -115,34 +120,69 @@ export default function Dashboard() {
     { title: 'Learning and Growth', progress: 0, updated: 'Thursday, Dec 18, 2025 at 06:37 pm' }
   ];
 
-  const quickActions = [
-    { label: 'Request Leave', icon: Plane, color: 'text-blue-600', action: () => console.log('Request Leave') },
-    { label: 'Set KPI Goals', icon: Target, color: 'text-blue-600', action: () => console.log('Set KPI') },
-    { label: 'View Payslip', icon: DollarSign, color: 'text-blue-600', action: () => console.log('Payslip') },
-    { label: 'Update profile', icon: User, color: 'text-blue-600', action: () => navigate('/profile') }
-  ];
-
-  const handleDepartmentClick = (path) => {
-    navigate(path);
-  };
-
-  const getDepartmentName = () => {
-    if (!user?.departments || user.departments.length === 0) return 'General';
-    const dept = user.departments[0];
-    const labels = {
-      'general': 'General',
-      'admin-finance': 'Admin & Finance',
-      'technical': 'Technical',
-      'corporate-affairs': 'Corporate Affairs',
-      'directorate': 'Directorate'
-    };
-    return labels[dept] || dept;
-  };
-
   const filteredEmployees = employees.filter(emp => 
     emp.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     emp.role.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  // Department Access Handler
+  const handleDepartmentClick = (dept) => {
+    // General is accessible to everyone
+    if (dept.id === 'general') {
+      navigate(dept.path);
+      return;
+    }
+
+    // Other departments require Department ID
+    setSelectedDepartment(dept);
+    setShowDepartmentModal(true);
+    setDepartmentCode('');
+    setDepartmentError('');
+  };
+
+  // Verify Department Access Code - WITH STORAGE
+  const handleVerifyDepartment = async () => {
+    if (!departmentCode) {
+      setDepartmentError('Please enter the department access code');
+      return;
+    }
+
+    setVerifying(true);
+    setDepartmentError('');
+
+    try {
+      const response = await fetch('http://localhost:5000/api/verify-department', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          department: selectedDepartment.id,
+          accessCode: departmentCode
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // ✅ STORE VERIFIED DEPARTMENT ACCESS
+        const verifiedDepts = JSON.parse(localStorage.getItem('verifiedDepartments') || '[]');
+        if (!verifiedDepts.includes(selectedDepartment.id)) {
+          verifiedDepts.push(selectedDepartment.id);
+          localStorage.setItem('verifiedDepartments', JSON.stringify(verifiedDepts));
+        }
+        
+        setShowDepartmentModal(false);
+        navigate(selectedDepartment.path);
+      } else {
+        setDepartmentError(data.message || 'Invalid access code');
+      }
+    } catch (error) {
+      setDepartmentError('Connection error. Please try again.');
+    } finally {
+      setVerifying(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -150,10 +190,10 @@ export default function Dashboard() {
       <div className="text-white shadow-lg" style={{ backgroundColor: '#132552' }}>
         <div className="container mx-auto px-6 py-8">
           <h1 className="text-2xl md:text-3xl font-bold mb-1 uppercase">
-            WELCOME {user?.name?.toUpperCase() || 'USER'} 👋
+            WELCOME BACK, {userData.name?.toUpperCase() || 'EMPLOYEE'} 👋
           </h1>
           <p className="text-blue-100">
-            Creative, Design & Communication Specialist
+            {userData.position || 'Employee'}
           </p>
         </div>
       </div>
@@ -164,20 +204,57 @@ export default function Dashboard() {
           {/* Left Sidebar - User Info */}
           <div className="col-span-12 lg:col-span-3">
             <div className="bg-white rounded-lg shadow-sm p-6 space-y-6 lg:sticky lg:top-20">
+              {/* User Avatar */}
+              <div className="flex items-center space-x-4 pb-4 border-b">
+                <div className="w-16 h-16 rounded-full flex items-center justify-center text-white font-bold text-xl"
+                  style={{ background: 'linear-gradient(135deg, #132552 0%, #8e3400 100%)' }}>
+                  {userData.name?.split(' ').map(n => n[0]).join('') || 'EN'}
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">
+                    {userData.name || 'Enoch Nikoi'}
+                  </h3>
+                  <p className="text-xs text-gray-500">
+                    {userData.position || 'Employee'}
+                  </p>
+                </div>
+              </div>
+
               <div className="space-y-4">
-                <div className="flex items-start space-x-3">
-                  <Building2 className="w-5 h-5 text-gray-400 mt-1" />
-                  <div>
-                    <p className="text-xs text-gray-500 uppercase tracking-wider">Department</p>
-                    <p className="text-sm font-medium text-gray-900">{getDepartmentName()}</p>
-                  </div>
+                {/* Employee ID */}
+                <div className="p-3 rounded-lg border-2"
+                  style={{ 
+                    backgroundColor: 'rgba(19, 37, 82, 0.05)',
+                    borderColor: '#132552'
+                  }}>
+                  <p className="text-xs text-gray-600 mb-1 font-medium">Employee ID</p>
+                  <p className="font-mono font-bold text-sm"
+                    style={{ color: '#132552' }}>
+                    {userData.employeeId || 'EMP-GEN-001'}
+                  </p>
                 </div>
 
+                {/* Department */}
+                <div className="p-3 rounded-lg border-2"
+                  style={{ 
+                    backgroundColor: 'rgba(142, 52, 0, 0.05)',
+                    borderColor: '#8e3400'
+                  }}>
+                  <p className="text-xs text-gray-600 mb-1 font-medium">Department</p>
+                  <p className="font-semibold text-sm"
+                    style={{ color: '#8e3400' }}>
+                    {userData.department === 'admin-finance' ? 'Admin & Finance' :
+                     userData.department === 'corporate-affairs' ? 'Corporate Affairs' :
+                     userData.department?.charAt(0).toUpperCase() + userData.department?.slice(1) || 'General'}
+                  </p>
+                </div>
+
+                {/* Location */}
                 <div className="flex items-start space-x-3">
                   <MapPin className="w-5 h-5 text-gray-400 mt-1" />
                   <div>
                     <p className="text-xs text-gray-500 uppercase tracking-wider">Location</p>
-                    <p className="text-sm font-medium text-gray-900">Accra</p>
+                    <p className="text-sm font-medium text-gray-900">{userData.location || 'Accra'}</p>
                   </div>
                 </div>
 
@@ -185,7 +262,7 @@ export default function Dashboard() {
                   <User className="w-5 h-5 text-gray-400 mt-1" />
                   <div>
                     <p className="text-xs text-gray-500 uppercase tracking-wider">Supervisor</p>
-                    <p className="text-sm font-medium text-gray-900">Lois Gaba</p>
+                    <p className="text-sm font-medium text-gray-900">Jonas Aryeh</p>
                   </div>
                 </div>
 
@@ -201,7 +278,7 @@ export default function Dashboard() {
                   <Clock className="w-5 h-5 text-gray-400 mt-1" />
                   <div>
                     <p className="text-xs text-gray-500 uppercase tracking-wider">Time in Company</p>
-                    <p className="text-sm font-medium text-gray-900">1 year 10 months</p>
+                    <p className="text-sm font-medium text-gray-900">4 years 10 months</p>
                   </div>
                 </div>
               </div>
@@ -235,7 +312,7 @@ export default function Dashboard() {
                       </div>
                     </div>
                   ))}
-                  <button className="text-sm text-blue-600 hover:underline">Read</button>
+                  <button className="text-sm text-blue-600 hover:underline">Read more</button>
                 </div>
               ) : (
                 <div className="text-center py-8">
@@ -256,45 +333,44 @@ export default function Dashboard() {
                 </p>
               </div>
 
-              {/* Department Cards Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {departments.filter(dept => hasAccessToDepartment(dept.id)).map((dept) => {
+                {departments.map((dept) => {
                   const Icon = dept.icon;
                   return (
                     <button
                       key={dept.id}
-                      onClick={() => handleDepartmentClick(dept.path)}
+                      onClick={() => handleDepartmentClick(dept)}
                       className={`relative ${dept.bgColor} ${dept.hoverBgColor} rounded-lg shadow-md hover:shadow-lg p-8 text-left overflow-hidden transition-shadow`}
                     >
-                      {/* Decorative Circle */}
                       <div className="absolute -right-8 -top-8 w-32 h-32 bg-white/5 rounded-full"></div>
                       <div className="absolute -right-12 -top-12 w-40 h-40 bg-white/5 rounded-full"></div>
                       
-                      {/* Content */}
                       <div className="relative z-10">
-                        {/* Icon */}
                         <div className={`${dept.iconBg} w-14 h-14 rounded-lg flex items-center justify-center mb-4`}>
                           <Icon className={`w-7 h-7 ${dept.iconColor}`} />
                         </div>
 
-                        {/* Department Name */}
                         <h3 className="text-2xl font-bold text-white mb-2">
                           {dept.name}
                         </h3>
 
-                        {/* Description */}
                         <p className="text-white/90 text-sm mb-4">
                           {dept.description}
                         </p>
 
-                        {/* Sub-modules indicator */}
                         <div className="flex items-center space-x-2 text-white/80 text-sm">
                           <div className="w-2 h-2 bg-white/60 rounded-full"></div>
                           <span>{dept.subModules} modules available</span>
                         </div>
+
+                        {/* Lock icon for protected departments */}
+                        {dept.id !== 'general' && (
+                          <div className="absolute top-4 right-4">
+                            <Lock className="w-5 h-5 text-white/60" />
+                          </div>
+                        )}
                       </div>
 
-                      {/* Arrow */}
                       <div className="absolute bottom-6 right-6">
                         <svg className="w-6 h-6 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -303,23 +379,6 @@ export default function Dashboard() {
                     </button>
                   );
                 })}
-              </div>
-            </div>
-
-            {/* Quick Actions */}
-            <div>
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                {quickActions.map((action, index) => (
-                  <button
-                    key={index}
-                    onClick={action.action}
-                    className="flex flex-col items-center justify-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
-                  >
-                    <action.icon className={`w-6 h-6 ${action.color} mb-2`} />
-                    <span className="text-xs text-center text-gray-700 font-medium">{action.label}</span>
-                  </button>
-                ))}
               </div>
             </div>
 
@@ -456,11 +515,9 @@ export default function Dashboard() {
                   </div>
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-800 mb-1">
-                    Quick Tip
-                  </h3>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-1">Quick Tip</h3>
                   <p className="text-gray-600">
-                    Click on any department card to access its specific modules and tasks. Each department contains multiple sub-sections tailored to its operations.
+                    Click on any department card to access its specific modules and tasks. <span className="font-semibold">General department is open to all.</span> Other departments require a Department Access Code.
                   </p>
                 </div>
               </div>
@@ -468,6 +525,72 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* Department Access Modal */}
+      {showDepartmentModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-gray-900">Department Access</h3>
+              <button
+                onClick={() => setShowDepartmentModal(false)}
+                className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+
+            <p className="text-gray-600 mb-6">
+              Enter the access code for <span className="font-semibold">{selectedDepartment?.name}</span> department
+            </p>
+
+            {departmentError && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start space-x-2">
+                <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-red-700">{departmentError}</p>
+              </div>
+            )}
+
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Department Access Code
+              </label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type="password"
+                  value={departmentCode}
+                  onChange={(e) => setDepartmentCode(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleVerifyDepartment()}
+                  placeholder="Enter access code"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent focus:outline-none"
+                  style={{ 
+                    focusRingColor: '#8e3400'
+                  }}
+                  disabled={verifying}
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowDepartmentModal(false)}
+                className="flex-1 py-2.5 px-4 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleVerifyDepartment}
+                disabled={verifying}
+                className="flex-1 py-2.5 px-4 rounded-lg font-medium text-white transition-colors disabled:opacity-50"
+                style={{ background: 'linear-gradient(135deg, #132552 0%, #8e3400 100%)' }}
+              >
+                {verifying ? 'Verifying...' : 'Access'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
