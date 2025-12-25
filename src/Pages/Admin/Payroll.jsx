@@ -10,6 +10,7 @@ export default function Payroll() {
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
 
+  // UPDATED: Removed fuel, housing, transport, utility, maintenance allowances
   const [formData, setFormData] = useState({
     employeeId: '',
     month: '',
@@ -24,11 +25,6 @@ export default function Payroll() {
     annualSalary: '',
     basicSalaryHrs: '',
     basicSalaryAmount: '',
-    fuelAllowance: '',
-    housingAllowance: '',
-    transportAllowance: '',
-    utilitySubsidy: '',
-    maintenanceAllowance: '',
     bonus: '',
     otherAllowances: '',
     employerSSF: '',
@@ -107,13 +103,9 @@ export default function Payroll() {
     });
   };
 
+  // UPDATED: Removed allowances from calculation
   const calculateTotals = () => {
     const earnings = parseFloat(formData.basicSalaryAmount || 0) +
-                    parseFloat(formData.fuelAllowance || 0) +
-                    parseFloat(formData.housingAllowance || 0) +
-                    parseFloat(formData.transportAllowance || 0) +
-                    parseFloat(formData.utilitySubsidy || 0) +
-                    parseFloat(formData.maintenanceAllowance || 0) +
                     parseFloat(formData.bonus || 0) +
                     parseFloat(formData.otherAllowances || 0);
 
@@ -147,6 +139,7 @@ export default function Payroll() {
         alert('Payslip created successfully!');
         setShowCreateForm(false);
         fetchPayslips();
+        // UPDATED: Reset form without allowances
         setFormData({
           employeeId: '',
           month: '',
@@ -161,11 +154,6 @@ export default function Payroll() {
           annualSalary: '',
           basicSalaryHrs: '',
           basicSalaryAmount: '',
-          fuelAllowance: '',
-          housingAllowance: '',
-          transportAllowance: '',
-          utilitySubsidy: '',
-          maintenanceAllowance: '',
           bonus: '',
           otherAllowances: '',
           employerSSF: '',
@@ -213,7 +201,7 @@ export default function Payroll() {
         </p>
       </div>
 
-      {/* Stats Cards - DIM COLORS */}
+      {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-gray-400">
           <div className="flex items-center justify-between">
@@ -260,7 +248,7 @@ export default function Payroll() {
         </div>
       </div>
 
-      {/* Action Button - DIM COLOR */}
+      {/* Action Button */}
       <div className="mb-6">
         <button
           onClick={() => setShowCreateForm(!showCreateForm)}
@@ -408,7 +396,7 @@ export default function Payroll() {
                   </div>
                 </div>
 
-                {/* EARNINGS SECTION */}
+                {/* EARNINGS SECTION - UPDATED: Only Basic Salary, Bonus, Other Allowances */}
                 <div className="border-t border-gray-200 pt-6">
                   <h3 className="text-lg font-semibold mb-4 text-gray-700">Earnings</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -443,76 +431,6 @@ export default function Payroll() {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Fuel Allowance
-                      </label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        name="fuelAllowance"
-                        value={formData.fuelAllowance}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Housing Allowance
-                      </label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        name="housingAllowance"
-                        value={formData.housingAllowance}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Transport Allowance
-                      </label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        name="transportAllowance"
-                        value={formData.transportAllowance}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Utility Subsidy
-                      </label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        name="utilitySubsidy"
-                        value={formData.utilitySubsidy}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Maintenance Allowance
-                      </label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        name="maintenanceAllowance"
-                        value={formData.maintenanceAllowance}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
                         Bonus
                       </label>
                       <input
@@ -540,7 +458,7 @@ export default function Payroll() {
                     </div>
                   </div>
 
-                  {/* Total Earnings Display - DIM */}
+                  {/* Total Earnings Display */}
                   <div className="mt-4 p-4 bg-gray-100 rounded-lg border border-gray-300">
                     <p className="text-sm font-medium text-gray-600">Total Earnings:</p>
                     <p className="text-2xl font-bold text-gray-800">
@@ -686,7 +604,7 @@ export default function Payroll() {
                     </div>
                   </div>
 
-                  {/* Total Deductions Display - DIM */}
+                  {/* Total Deductions Display */}
                   <div className="mt-4 p-4 bg-gray-100 rounded-lg border border-gray-300">
                     <p className="text-sm font-medium text-gray-600">Total Deductions:</p>
                     <p className="text-2xl font-bold text-gray-800">
@@ -742,7 +660,7 @@ export default function Payroll() {
                   </div>
                 </div>
 
-                {/* NET PAY SUMMARY - DIM */}
+                {/* NET PAY SUMMARY */}
                 <div className="border-t border-gray-200 pt-6">
                   <div className="p-6 bg-gray-700 rounded-lg">
                     <div className="text-center text-white">
@@ -754,7 +672,7 @@ export default function Payroll() {
                   </div>
                 </div>
 
-                {/* Submit Button - DIM */}
+                {/* Submit Button */}
                 <div className="flex gap-4">
                   <button
                     type="button"
