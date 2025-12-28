@@ -53,10 +53,11 @@ export default function Sidebar({ isOpen, onClose }) {
     }
   ];
 
+  // ✅ UPDATED: View Payslip now navigates to /my-payslips
   const quickActions = [
     { label: 'Request Leave', icon: Plane, action: () => console.log('Request Leave') },
     { label: 'Set KPI Goals', icon: Target, action: () => console.log('Set KPI') },
-    { label: 'View Payslip', icon: DollarSign, action: () => console.log('Payslip') },
+    { label: 'View Payslip', icon: DollarSign, action: () => navigate('/my-payslips') },
     { label: 'Update profile', icon: User, action: () => navigate('/profile') }
   ];
 
@@ -66,8 +67,10 @@ export default function Sidebar({ isOpen, onClose }) {
     }
   };
 
+  // ✅ UPDATED: Clear verified departments on logout
   const handleLogout = () => {
     localStorage.removeItem('user');
+    localStorage.removeItem('verifiedDepartments');
     navigate('/login');
     if (window.innerWidth < 768) {
       onClose();

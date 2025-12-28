@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Wallet, Package, PieChart, ShoppingCart, Users } from 'lucide-react';
+import { Wallet, Package, PieChart, ShoppingCart, Users, Settings } from 'lucide-react';
 import DepartmentProtection from '../Components/DepartmentProtection';
 
 export default function Admin() {
@@ -40,6 +40,13 @@ export default function Admin() {
       icon: Users,
       description: 'Human resources management',
       path: '/admin-finance/hr'
+    },
+    {
+      id: 'settings',
+      name: 'Company Settings',
+      icon: Settings,
+      description: 'Upload logo and configure company info',
+      path: '/admin-finance/settings'
     }
   ];
 

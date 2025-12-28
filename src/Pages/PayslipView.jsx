@@ -1,16 +1,37 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Download, ArrowLeft, Printer } from 'lucide-react';
+import html2pdf from 'html2pdf.js';
 
 export default function PayslipView() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [payslip, setPayslip] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [companySettings, setCompanySettings] = useState({
+    logoUrl: null,
+    companyName: 'GULF OF GUINEA MARITIME INSTITUTE',
+    companyAcronym: 'GoGMI',
+    hrEmail: 'hr@gogmi.org.gh'
+  });
 
   useEffect(() => {
     fetchPayslip();
+    fetchCompanySettings();
   }, [id]);
+
+  const fetchCompanySettings = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/company-settings');
+      const data = await response.json();
+      
+      if (data.success) {
+        setCompanySettings(data.settings);
+      }
+    } catch (error) {
+      console.error('Error fetching company settings:', error);
+    }
+  };
 
   const fetchPayslip = async () => {
     try {
@@ -28,6 +49,19 @@ export default function PayslipView() {
 
   const handlePrint = () => {
     window.print();
+  };
+
+  const handleDownloadPDF = () => {
+    const element = document.getElementById('payslip-content');
+    const opt = {
+      margin: 0.5,
+      filename: `Payslip_${payslip.month}_${payslip.year}_${payslip.staffNo}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+    };
+
+    html2pdf().set(opt).from(element).save();
   };
 
   if (loading) {
@@ -63,7 +97,7 @@ export default function PayslipView() {
       <div className="max-w-4xl mx-auto px-4 mb-4 print:hidden">
         <div className="flex gap-4">
           <button
-            onClick={() => navigate('/admin-finance/payroll')}
+            onClick={() => navigate(-1)}
             className="flex items-center gap-2 px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -77,6 +111,7 @@ export default function PayslipView() {
             Print
           </button>
           <button
+            onClick={handleDownloadPDF}
             className="flex items-center gap-2 px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800"
           >
             <Download className="w-4 h-4" />
@@ -86,21 +121,29 @@ export default function PayslipView() {
       </div>
 
       {/* Payslip Document */}
-      <div className="max-w-4xl mx-auto bg-white shadow-lg print:shadow-none">
+      <div id="payslip-content" className="max-w-4xl mx-auto bg-white shadow-lg print:shadow-none">
         <div className="p-8">
           {/* Header with Logo */}
           <div className="border-b-2 border-gray-800 pb-6 mb-6">
             <div className="flex items-center justify-between">
-              {/* Company Logo - PLACEHOLDER */}
+              {/* Company Logo */}
               <div className="flex items-center gap-4">
-                <div className="w-20 h-20 border-2 border-gray-300 rounded flex items-center justify-center text-xs text-gray-400">
-                  LOGO
-                </div>
+                {companySettings.logoUrl ? (
+                  <img
+                    src={companySettings.logoUrl}
+                    alt="Company Logo"
+                    className="w-20 h-20 object-contain"
+                  />
+                ) : (
+                  <div className="w-20 h-20 border-2 border-gray-300 rounded flex items-center justify-center text-xs text-gray-400">
+                    LOGO
+                  </div>
+                )}
                 <div>
                   <h1 className="text-2xl font-bold text-gray-800">
-                    GULF OF GUINEA MARITIME INSTITUTE
+                    {companySettings.companyName}
                   </h1>
-                  <p className="text-sm text-gray-600">(GoGMI)</p>
+                  <p className="text-sm text-gray-600">({companySettings.companyAcronym})</p>
                 </div>
               </div>
             </div>
@@ -300,7 +343,7 @@ export default function PayslipView() {
             <p>Reference No: {payslip.referenceNo}</p>
             <p className="mt-2">In the event of any queries, please contact:</p>
             <p className="font-semibold">Human Resource Department</p>
-            <p>HR Email: info@gogmi.org.gh</p>
+            <p>HR Email: {companySettings.hrEmail}</p>
           </div>
         </div>
       </div>

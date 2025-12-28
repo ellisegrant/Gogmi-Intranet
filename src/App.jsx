@@ -9,6 +9,9 @@ import Technical from './Pages/Technical'
 import Corporate from './Pages/Corporate'
 import Directorate from './Pages/Directorate'
 import PayslipView from './Pages/PayslipView'
+import EmployeePayslips from './Pages/EmployeePayslips'
+import CompanySettings from './Pages/Companysettings'
+
 
 // General sub-modules
 import Policies from './Pages/General/Policies'
@@ -56,6 +59,16 @@ function App() {
           
         <Route path="/login" element={<Login />} />
         <Route path="/request-access" element={<RequestAccess />} />
+
+
+
+      <Route path="/my-payslips" element={
+        <ProtectedRoute>
+          <EmployeePayslips />
+        </ProtectedRoute>
+      } />
+
+
         
         {/* ============================================
             PROTECTED ROUTES - Require Login
@@ -231,6 +244,18 @@ function App() {
             </Layout>
           </ProtectedRoute>
         } />
+
+
+
+
+      <Route path="/admin-finance/settings" element={
+        <ProtectedRoute>
+          <CompanySettings />
+        </ProtectedRoute>
+      } />
+
+
+
         
         {/* Catch all - redirect to login */}
         <Route path="*" element={<Navigate to="/login" replace />} />
