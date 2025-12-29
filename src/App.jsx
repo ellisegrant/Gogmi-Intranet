@@ -11,6 +11,7 @@ import Directorate from './Pages/Directorate'
 import PayslipView from './Pages/PayslipView'
 import EmployeePayslips from './Pages/EmployeePayslips'
 import CompanySettings from './Pages/Companysettings'
+import AnnouncementsManagement from './Pages/General/Announcementsmanagement'
 
 
 // General sub-modules
@@ -228,6 +229,15 @@ function App() {
             </Layout>
           </ProtectedRoute>
         } />
+
+
+        <Route path="/general/announcements" element={
+          <ProtectedRoute>
+            <AnnouncementsManagement />
+          </ProtectedRoute>
+        } />
+
+
 
 
         <Route path="/payslip/:id" element={

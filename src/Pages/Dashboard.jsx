@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { LayoutGrid, DollarSign, Wrench, Building2, Briefcase, MapPin, User, Calendar, Clock, Edit2, Search, Bell, Gift, Award, TrendingUp, Users, ChevronRight, Megaphone, Lock, X, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -13,8 +13,35 @@ export default function Dashboard() {
   const [departmentError, setDepartmentError] = useState('');
   const [verifying, setVerifying] = useState(false);
 
+  // Announcements States (NEW)
+  const [announcements, setAnnouncements] = useState([]);
+  const [loadingAnnouncements, setLoadingAnnouncements] = useState(true);
+
   // Get user data from localStorage
   const userData = JSON.parse(localStorage.getItem('user') || '{}');
+
+  //  Fetch announcements on component mount (NEW)
+  useEffect(() => {
+    fetchAnnouncements();
+  }, []);
+
+  //  Fetch announcements function (NEW)
+  const fetchAnnouncements = async () => {
+    setLoadingAnnouncements(true);
+    try {
+      const response = await fetch('http://localhost:5000/api/announcements');
+      const data = await response.json();
+      
+      if (data.success) {
+        // Show only the 3 most recent announcements
+        setAnnouncements(data.announcements.slice(0, 3));
+      }
+    } catch (error) {
+      console.error('Error fetching announcements:', error);
+    } finally {
+      setLoadingAnnouncements(false);
+    }
+  };
 
   const departments = [
     {
@@ -79,16 +106,6 @@ export default function Dashboard() {
     }
   ];
 
-  const announcements = [
-    {
-      id: 1,
-      title: 'Year-End Performance Review',
-      message: 'All employees are required to complete their H2 2025 performance appraisals by December 31st.',
-      date: 'Dec 18, 2025',
-      type: 'important'
-    }
-  ];
-
   const employees = [
     { id: 1, name: 'Jonas Aryeh', role: 'Head Of Corporate Affairs', avatar: 'JA', color: 'bg-pink-500' },
     { id: 2, name: 'Caleb Harrisson', role: 'Research Manager', avatar: 'CH', color: 'bg-pink-500' },
@@ -124,6 +141,16 @@ export default function Dashboard() {
     emp.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     emp.role.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  // Category color function for announcements (NEW)
+  const getCategoryColor = (category) => {
+    const colors = {
+      'Important': 'bg-red-100 text-red-700 border-red-200',
+      'General': 'bg-blue-100 text-blue-700 border-blue-200',
+      'Event': 'bg-green-100 text-green-700 border-green-200'
+    };
+    return colors[category] || colors.General;
+  };
 
   // Department Access Handler
   const handleDepartmentClick = (dept) => {
@@ -165,7 +192,7 @@ export default function Dashboard() {
       const data = await response.json();
 
       if (data.success) {
-        // ✅ STORE VERIFIED DEPARTMENT ACCESS
+        //  STORE VERIFIED DEPARTMENT ACCESS
         const verifiedDepts = JSON.parse(localStorage.getItem('verifiedDepartments') || '[]');
         if (!verifiedDepts.includes(selectedDepartment.id)) {
           verifiedDepts.push(selectedDepartment.id);
@@ -295,29 +322,51 @@ export default function Dashboard() {
 
           {/* Main Content */}
           <div className="col-span-12 lg:col-span-9 space-y-6">
-            {/* Recent Announcements */}
+            {/* ✅ UPDATED: Recent Announcements Section */}
             <div className="bg-white rounded-lg shadow-sm p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Recent Announcement(s)</h2>
-              {announcements.length > 0 ? (
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                  <Megaphone className="w-6 h-6 text-yellow-600" />
+                  Recent Announcements
+                </h2>
+              </div>
+              
+              {loadingAnnouncements ? (
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-700 mx-auto mb-2"></div>
+                  <p className="text-sm text-gray-500">Loading announcements...</p>
+                </div>
+              ) : announcements.length === 0 ? (
+                <div className="text-center py-8">
+                  <Megaphone className="w-12 h-12 text-gray-300 mx-auto mb-2" />
+                  <p className="text-sm text-gray-500">No announcements yet</p>
+                </div>
+              ) : (
                 <div className="space-y-3">
-                  {announcements.map(announcement => (
-                    <div key={announcement.id} className="border-l-4 border-blue-500 bg-blue-50 p-4 rounded">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-gray-900">{announcement.title}</h3>
-                          <p className="text-sm text-gray-600 mt-1">{announcement.message}</p>
-                          <p className="text-xs text-gray-500 mt-2">{announcement.date}</p>
-                        </div>
-                        <Megaphone className="w-5 h-5 text-blue-500 ml-3" />
+                  {announcements.map((announcement) => (
+                    <div
+                      key={announcement.id}
+                      className="p-3 rounded-lg border hover:shadow-md transition-shadow"
+                    >
+                      <div className="flex items-start justify-between mb-2">
+                        <h3 className="font-semibold text-gray-800">{announcement.title}</h3>
+                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${getCategoryColor(announcement.category)}`}>
+                          {announcement.category}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-600 mb-2">{announcement.content}</p>
+                      <div className="flex items-center justify-between text-xs text-gray-500">
+                        <span>{announcement.author}</span>
+                        <span>{new Date(announcement.createdAt).toLocaleDateString()}</span>
                       </div>
                     </div>
                   ))}
-                  <button className="text-sm text-blue-600 hover:underline">Read more</button>
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <Bell className="w-16 h-16 text-gray-300 mx-auto mb-3" />
-                  <p className="text-gray-500">No recent announcements</p>
+                  <button 
+                    onClick={() => navigate('/general/announcements')}
+                    className="text-sm text-blue-600 hover:underline"
+                  >
+                    View all announcements
+                  </button>
                 </div>
               )}
             </div>
