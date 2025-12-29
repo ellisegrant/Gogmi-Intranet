@@ -13,33 +13,39 @@ export default function Dashboard() {
   const [departmentError, setDepartmentError] = useState('');
   const [verifying, setVerifying] = useState(false);
 
-  // Announcements States (NEW)
+  // Announcements States
   const [announcements, setAnnouncements] = useState([]);
   const [loadingAnnouncements, setLoadingAnnouncements] = useState(true);
 
   // Get user data from localStorage
   const userData = JSON.parse(localStorage.getItem('user') || '{}');
 
-  //  Fetch announcements on component mount (NEW)
+  // Fetch announcements on component mount
   useEffect(() => {
     fetchAnnouncements();
   }, []);
 
-  //  Fetch announcements function (NEW)
+  // Fetch announcements function
   const fetchAnnouncements = async () => {
+    console.log('🔄 Fetching announcements...');
     setLoadingAnnouncements(true);
     try {
       const response = await fetch('http://localhost:5000/api/announcements');
+      console.log('📡 Response status:', response.status);
       const data = await response.json();
+      console.log('📦 Received data:', data);
       
       if (data.success) {
-        // Show only the 3 most recent announcements
+        console.log(' Setting announcements:', data.announcements.slice(0, 3));
         setAnnouncements(data.announcements.slice(0, 3));
+      } else {
+        console.log(' API returned success: false');
       }
     } catch (error) {
-      console.error('Error fetching announcements:', error);
+      console.error(' Error fetching announcements:', error);
     } finally {
       setLoadingAnnouncements(false);
+      console.log(' Loading finished');
     }
   };
 
@@ -54,7 +60,7 @@ export default function Dashboard() {
       hoverBgColor: 'hover:bg-slate-800',
       iconBg: 'bg-slate-100',
       iconColor: 'text-slate-700',
-      subModules: 5
+      subModules: 6
     },
     {
       id: 'admin-finance',
@@ -66,7 +72,7 @@ export default function Dashboard() {
       hoverBgColor: 'hover:bg-gray-800',
       iconBg: 'bg-gray-100',
       iconColor: 'text-gray-700',
-      subModules: 5
+      subModules: 6
     },
     {
       id: 'technical',
@@ -142,7 +148,7 @@ export default function Dashboard() {
     emp.role.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Category color function for announcements (NEW)
+  // Category color function for announcements
   const getCategoryColor = (category) => {
     const colors = {
       'Important': 'bg-red-100 text-red-700 border-red-200',
@@ -154,20 +160,18 @@ export default function Dashboard() {
 
   // Department Access Handler
   const handleDepartmentClick = (dept) => {
-    // General is accessible to everyone
     if (dept.id === 'general') {
       navigate(dept.path);
       return;
     }
 
-    // Other departments require Department ID
     setSelectedDepartment(dept);
     setShowDepartmentModal(true);
     setDepartmentCode('');
     setDepartmentError('');
   };
 
-  // Verify Department Access Code - WITH STORAGE
+  // Verify Department Access Code
   const handleVerifyDepartment = async () => {
     if (!departmentCode) {
       setDepartmentError('Please enter the department access code');
@@ -192,7 +196,6 @@ export default function Dashboard() {
       const data = await response.json();
 
       if (data.success) {
-        //  STORE VERIFIED DEPARTMENT ACCESS
         const verifiedDepts = JSON.parse(localStorage.getItem('verifiedDepartments') || '[]');
         if (!verifiedDepts.includes(selectedDepartment.id)) {
           verifiedDepts.push(selectedDepartment.id);
@@ -211,13 +214,16 @@ export default function Dashboard() {
     }
   };
 
+  console.log(' Rendering Dashboard. Announcements:', announcements);
+  console.log(' Loading:', loadingAnnouncements);
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Welcome Banner */}
       <div className="text-white shadow-lg" style={{ backgroundColor: '#132552' }}>
         <div className="container mx-auto px-6 py-8">
           <h1 className="text-2xl md:text-3xl font-bold mb-1 uppercase">
-            WELCOME BACK, {userData.name?.toUpperCase() || 'EMPLOYEE'} 👋
+            WELCOME BACK, {userData.name?.toUpperCase() || 'EMPLOYEE'} 
           </h1>
           <p className="text-blue-100">
             {userData.position || 'Employee'}
@@ -322,7 +328,7 @@ export default function Dashboard() {
 
           {/* Main Content */}
           <div className="col-span-12 lg:col-span-9 space-y-6">
-            {/* ✅ UPDATED: Recent Announcements Section */}
+            {/* Recent Announcements Section */}
             <div className="bg-white rounded-lg shadow-sm p-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
@@ -340,13 +346,14 @@ export default function Dashboard() {
                 <div className="text-center py-8">
                   <Megaphone className="w-12 h-12 text-gray-300 mx-auto mb-2" />
                   <p className="text-sm text-gray-500">No announcements yet</p>
+                  <p className="text-xs text-gray-400 mt-1">Create one in General → Announcements</p>
                 </div>
               ) : (
                 <div className="space-y-3">
                   {announcements.map((announcement) => (
                     <div
                       key={announcement.id}
-                      className="p-3 rounded-lg border hover:shadow-md transition-shadow"
+                      className="p-4 rounded-lg border border-gray-200 hover:shadow-md transition-shadow bg-white"
                     >
                       <div className="flex items-start justify-between mb-2">
                         <h3 className="font-semibold text-gray-800">{announcement.title}</h3>
@@ -356,16 +363,16 @@ export default function Dashboard() {
                       </div>
                       <p className="text-sm text-gray-600 mb-2">{announcement.content}</p>
                       <div className="flex items-center justify-between text-xs text-gray-500">
-                        <span>{announcement.author}</span>
+                        <span>By {announcement.author}</span>
                         <span>{new Date(announcement.createdAt).toLocaleDateString()}</span>
                       </div>
                     </div>
                   ))}
                   <button 
                     onClick={() => navigate('/general/announcements')}
-                    className="text-sm text-blue-600 hover:underline"
+                    className="text-sm text-blue-600 hover:underline font-medium"
                   >
-                    View all announcements
+                    View all announcements →
                   </button>
                 </div>
               )}
@@ -412,7 +419,6 @@ export default function Dashboard() {
                           <span>{dept.subModules} modules available</span>
                         </div>
 
-                        {/* Lock icon for protected departments */}
                         {dept.id !== 'general' && (
                           <div className="absolute top-4 right-4">
                             <Lock className="w-5 h-5 text-white/60" />
@@ -613,9 +619,6 @@ export default function Dashboard() {
                   onKeyPress={(e) => e.key === 'Enter' && handleVerifyDepartment()}
                   placeholder="Enter access code"
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent focus:outline-none"
-                  style={{ 
-                    focusRingColor: '#8e3400'
-                  }}
                   disabled={verifying}
                 />
               </div>

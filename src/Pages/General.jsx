@@ -1,11 +1,18 @@
 import { useNavigate } from 'react-router-dom';
-import { FileText, Users, Package, Database, UserSquare2 } from 'lucide-react';
+import { FileText, Users, Package, Database, UserSquare2, Megaphone } from 'lucide-react';
 import DepartmentProtection from '../Components/DepartmentProtection';
 
 export default function General() {
   const navigate = useNavigate();
 
   const subModules = [
+    {
+      id: 'announcements',
+      name: 'Announcements',
+      icon: Megaphone,
+      description: 'Company announcements and news',
+      path: '/general/announcements'
+    },
     {
       id: 'policies',
       name: 'Policies',
