@@ -14,6 +14,10 @@ import CompanySettings from './Pages/Companysettings'
 import AnnouncementsManagement from './Pages/General/Announcementsmanagement'
 import MyLeave from './Pages/General/MyLeave';
 import LeaveManagement from './Pages/Admin/LeaveManagement';
+import Profile from './Pages/Profile';
+import Settings from './Pages/Settings';
+
+
 
 
 
@@ -73,6 +77,12 @@ function App() {
           <EmployeePayslips />
         </ProtectedRoute>
       } />
+
+
+
+      <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+      <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+
 
 
         
