@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
-import { FileText, Users, Package, Database, UserSquare2, Megaphone } from 'lucide-react';
 import DepartmentProtection from '../Components/DepartmentProtection';
+import { FileText, Users, Package, Database, UserSquare2, Megaphone, Calendar } from 'lucide-react';
 
 export default function General() {
   const navigate = useNavigate();
@@ -47,7 +47,18 @@ export default function General() {
       icon: UserSquare2,
       description: 'Employee information and records',
       path: '/general/employee-data'
+    },
+
+
+    {
+      id: 'my-leave',
+      name: 'My Leave',
+      icon: Calendar,
+      description: 'Request leave and view leave balance',
+      path: '/general/my-leave'
     }
+
+
   ];
 
   return (

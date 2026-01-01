@@ -12,6 +12,11 @@ import PayslipView from './Pages/PayslipView'
 import EmployeePayslips from './Pages/EmployeePayslips'
 import CompanySettings from './Pages/Companysettings'
 import AnnouncementsManagement from './Pages/General/Announcementsmanagement'
+import MyLeave from './Pages/General/MyLeave';
+import LeaveManagement from './Pages/Admin/LeaveManagement';
+
+
+
 
 
 // General sub-modules
@@ -261,6 +266,23 @@ function App() {
       <Route path="/admin-finance/settings" element={
         <ProtectedRoute>
           <CompanySettings />
+        </ProtectedRoute>
+      } />
+
+
+
+
+      {/* Employee Leave Route */}
+      <Route path="/general/my-leave" element={
+        <ProtectedRoute>
+          <MyLeave />
+        </ProtectedRoute>
+      } />
+
+      {/* Admin Leave Management Route */}
+      <Route path="/admin-finance/leave-management" element={
+        <ProtectedRoute>
+          <LeaveManagement />
         </ProtectedRoute>
       } />
 

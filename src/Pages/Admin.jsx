@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
-import { Wallet, Package, PieChart, ShoppingCart, Users, Settings } from 'lucide-react';
+import { Wallet, Package, PieChart, ShoppingCart, Users, Settings,Calendar } from 'lucide-react';
 import DepartmentProtection from '../Components/DepartmentProtection';
+
 
 export default function Admin() {
   const navigate = useNavigate();
@@ -47,7 +48,18 @@ export default function Admin() {
       icon: Settings,
       description: 'Upload logo and configure company info',
       path: '/admin-finance/settings'
+    },
+
+
+    {
+      id: 'leave-management',
+      name: 'Leave Management',
+      icon: Calendar,
+      description: 'Approve and manage employee leave requests',
+      path: '/admin-finance/leave-management',
+      color: 'orange'
     }
+
   ];
 
   return (

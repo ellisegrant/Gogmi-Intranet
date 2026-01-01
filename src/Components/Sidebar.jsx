@@ -1,4 +1,4 @@
-import { LayoutGrid, DollarSign, Wrench, Building2, Briefcase, X, Home, LogOut, Settings, User, Plane, Target, FileText } from 'lucide-react';
+import { LayoutGrid, DollarSign, Wrench, Building2, Briefcase, X, Home, LogOut, Settings, User } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 export default function Sidebar({ isOpen, onClose }) {
@@ -53,12 +53,12 @@ export default function Sidebar({ isOpen, onClose }) {
     }
   ];
 
-  // ✅ UPDATED: View Payslip now navigates to /my-payslips
+  // ✅ UPDATED: No icons, professional colors, Request Leave works
   const quickActions = [
-    { label: 'Request Leave', icon: Plane, action: () => console.log('Request Leave') },
-    { label: 'Set KPI Goals', icon: Target, action: () => console.log('Set KPI') },
-    { label: 'View Payslip', icon: DollarSign, action: () => navigate('/my-payslips') },
-    { label: 'Update profile', icon: User, action: () => navigate('/profile') }
+    { label: 'Request Leave', action: () => navigate('/general/my-leave') },
+    { label: 'Set KPI Goals', action: () => console.log('Set KPI') },
+    { label: 'View Payslip', action: () => navigate('/my-payslips') },
+    { label: 'Update Profile', action: () => navigate('/profile') }
   ];
 
   const handleLinkClick = () => {
@@ -67,7 +67,6 @@ export default function Sidebar({ isOpen, onClose }) {
     }
   };
 
-  // ✅ UPDATED: Clear verified departments on logout
   const handleLogout = () => {
     localStorage.removeItem('user');
     localStorage.removeItem('verifiedDepartments');
@@ -150,28 +149,24 @@ export default function Sidebar({ isOpen, onClose }) {
               </div>
             </div>
 
-            {/* Quick Actions Section */}
+            {/* Quick Actions Section - UPDATED: No icons, professional gray colors */}
             <div className="px-4 mb-6 pt-6 border-t border-gray-200">
               <h3 className="px-4 mb-3 text-xs font-semibold uppercase tracking-wider" style={{ color: '#132552' }}>
                 Quick Actions
               </h3>
               <div className="space-y-1">
-                {quickActions.map((action, idx) => {
-                  const Icon = action.icon;
-                  return (
-                    <button
-                      key={idx}
-                      onClick={() => {
-                        action.action();
-                        handleLinkClick();
-                      }}
-                      className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-blue-600 hover:bg-blue-50 font-medium"
-                    >
-                      <Icon className="w-5 h-5" />
-                      <span className="text-sm">{action.label}</span>
-                    </button>
-                  );
-                })}
+                {quickActions.map((action, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => {
+                      action.action();
+                      handleLinkClick();
+                    }}
+                    className="w-full text-left px-4 py-2.5 rounded-lg transition-colors text-gray-700 hover:bg-gray-100 text-sm font-medium"
+                  >
+                    {action.label}
+                  </button>
+                ))}
               </div>
             </div>
 

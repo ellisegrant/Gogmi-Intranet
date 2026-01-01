@@ -23,6 +23,7 @@ export default function Dashboard() {
   // Fetch announcements on component mount
   useEffect(() => {
     fetchAnnouncements();
+    fetchLeaveBalance();
   }, []);
 
   // Fetch announcements function
@@ -36,16 +37,37 @@ export default function Dashboard() {
       console.log('📦 Received data:', data);
       
       if (data.success) {
-        console.log(' Setting announcements:', data.announcements.slice(0, 3));
+        console.log('✅ Setting announcements:', data.announcements.slice(0, 3));
         setAnnouncements(data.announcements.slice(0, 3));
       } else {
-        console.log(' API returned success: false');
+        console.log('❌ API returned success: false');
       }
     } catch (error) {
-      console.error(' Error fetching announcements:', error);
+      console.error('❌ Error fetching announcements:', error);
     } finally {
       setLoadingAnnouncements(false);
-      console.log(' Loading finished');
+      console.log('✅ Loading finished');
+    }
+  };
+
+  // Fetch leave balance function
+  const fetchLeaveBalance = async () => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/leaves/balance/${userData.employeeId}`);
+      const data = await response.json();
+      
+      if (data.success) {
+        const updatedBalance = data.balance.map(item => ({
+          type: item.type,
+          used: item.used,
+          total: item.total,
+          remaining: item.remaining,
+          color: 'bg-blue-600'
+        }));
+        setLeaveBalance(updatedBalance);
+      }
+    } catch (error) {
+      console.error('Error fetching leave balance:', error);
     }
   };
 
@@ -131,12 +153,12 @@ export default function Dashboard() {
     { name: 'Emmanuel Arthur', date: 'Dec 4th (2 years)', avatar: 'EA', color: 'bg-blue-500' }
   ];
 
-  const leaveBalance = [
+  const [leaveBalance, setLeaveBalance] = useState([
     { type: 'Annual Leave', used: 0, total: 22, color: 'bg-blue-600' },
     { type: 'Compassionate Leave', used: 0, total: 5, color: 'bg-blue-600' },
     { type: 'Paternity Leave', used: 0, total: 5, color: 'bg-blue-600' },
     { type: 'Sick Leave', used: 0, total: 5, color: 'bg-blue-600' }
-  ];
+  ]);
 
   const performanceMetrics = [
     { title: 'Documentation of Product Operations workflow and processes', progress: 0, updated: 'Thursday, Dec 18, 2025 at 06:37 pm' },
@@ -214,8 +236,8 @@ export default function Dashboard() {
     }
   };
 
-  console.log(' Rendering Dashboard. Announcements:', announcements);
-  console.log(' Loading:', loadingAnnouncements);
+  console.log('🎨 Rendering Dashboard. Announcements:', announcements);
+  console.log('⏳ Loading:', loadingAnnouncements);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -223,7 +245,7 @@ export default function Dashboard() {
       <div className="text-white shadow-lg" style={{ backgroundColor: '#132552' }}>
         <div className="container mx-auto px-6 py-8">
           <h1 className="text-2xl md:text-3xl font-bold mb-1 uppercase">
-            WELCOME BACK, {userData.name?.toUpperCase() || 'EMPLOYEE'} 
+            WELCOME BACK, {userData.name?.toUpperCase() || 'EMPLOYEE'} 👋
           </h1>
           <p className="text-blue-100">
             {userData.position || 'Employee'}
@@ -544,12 +566,14 @@ export default function Dashboard() {
                     <div key={idx}>
                       <div className="flex items-center justify-between mb-2">
                         <p className="text-sm font-medium text-gray-900">{leave.type}</p>
-                        <p className="text-sm text-gray-600">{leave.total - leave.used} of {leave.total} day(s)</p>
+                        <p className="text-sm text-gray-600">
+                          {leave.remaining !== undefined ? leave.remaining : (leave.total - leave.used)} of {leave.total} day(s)
+                        </p>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
                         <div 
                           className={`${leave.color} h-2 rounded-full`} 
-                          style={{ width: `${((leave.total - leave.used) / leave.total) * 100}%` }}
+                          style={{ width: `${((leave.remaining !== undefined ? leave.remaining : (leave.total - leave.used)) / leave.total) * 100}%` }}
                         ></div>
                       </div>
                     </div>
